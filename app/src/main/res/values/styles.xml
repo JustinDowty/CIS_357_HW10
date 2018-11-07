@@ -7,7 +7,6 @@
         <item name="colorPrimaryDark">#52b7bd</item>
         <item name="android:titleTextStyle">@style/MyTheme.ActionBar.TitleTextStyle</item>
         <item name="colorAccent">#b01dab</item>
-
         <item name="android:textColor">#52b7bd</item>
         <item name="android:buttonStyle">@style/ButtonColor</item>
         <item name="colorButtonNormal">#52b7bd</item>
@@ -15,7 +14,6 @@
     </style>
 
     <style name="ButtonColor" parent="Widget.AppCompat.Button">
-
         <item name="android:textColor">#b01dab</item>
     </style>
 

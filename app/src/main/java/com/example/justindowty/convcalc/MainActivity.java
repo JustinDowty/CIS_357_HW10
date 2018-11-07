@@ -12,9 +12,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.justindowty.convcalc.dummy.HistoryContent;
+
+import org.joda.time.DateTime;
+
+import static java.lang.String.valueOf;
+
 public class MainActivity extends AppCompatActivity {
-    /* Used for settings return */
     public static final int SETTINGS_RETURN = 1;
+    public static final int HISTORY_RESULT = 2;
 
     private EditText fromInput;
     private EditText toInput;
@@ -73,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
             i.putExtra("Mode", currMode);
             startActivityForResult(i, SETTINGS_RETURN);
+        } else if(item.getItemId() == R.id.action_history) {
+            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+            startActivityForResult(intent, HISTORY_RESULT );
+            return true;
         }
         return true;
     }
@@ -83,7 +93,15 @@ public class MainActivity extends AppCompatActivity {
         if(resultCode == Activity.RESULT_OK) {
             fromLabel.setText(data.getStringExtra("FromUnit"));
             toLabel.setText(data.getStringExtra("ToUnit"));
+        } else if (resultCode == HISTORY_RESULT) {
+            String[] vals = data.getStringArrayExtra("item");
+            this.fromInput.setText(vals[0]);
+            this.toInput.setText(vals[1]);
+            this.currMode = valueOf(vals[2]);
+            this.fromLabel.setText(vals[3]);
+            this.toLabel.setText(vals[4]);
         }
+
     }
 
     /* Conversion Function */
@@ -158,9 +176,17 @@ public class MainActivity extends AppCompatActivity {
         if(fromInput.getText().toString().equals("")){
             double val = Double.parseDouble(toInput.getText().toString());
             fromInput.setText(Double.toString(convert(toLabel.getText().toString(), fromLabel.getText().toString(), val)));
+            HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(Double.parseDouble(fromInput.getText().toString()),
+                    Double.parseDouble(toInput.getText().toString()), currMode,
+                    fromLabel.getText().toString(), toLabel.getText().toString(), DateTime.now());
+            HistoryContent.addItem(item);
         } else {
             double val = Double.parseDouble(fromInput.getText().toString());
             toInput.setText(Double.toString(convert(fromLabel.getText().toString(), toLabel.getText().toString(), val)));
+            HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(Double.parseDouble(fromInput.getText().toString()),
+                    Double.parseDouble(toInput.getText().toString()), currMode,
+                    fromLabel.getText().toString(), toLabel.getText().toString(), DateTime.now());
+            HistoryContent.addItem(item);
         }
     }
 }
