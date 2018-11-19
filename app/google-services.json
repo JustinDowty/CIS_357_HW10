@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "253651851691",
+    "firebase_url": "https://convcalc.firebaseio.com",
+    "project_id": "convcalc",
+    "storage_bucket": "convcalc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253651851691:android:4eb54e3855245bc6",
+        "android_client_info": {
+          "package_name": "com.example.justindowty.convcalc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "253651851691-3dm4qmienk965snogastfpqkfg0t6og1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCPoUM2NyQzTh_r0Cz9aQHeFGJeO7f5T0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
