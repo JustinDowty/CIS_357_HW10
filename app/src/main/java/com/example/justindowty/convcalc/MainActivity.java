@@ -1,7 +1,11 @@
 package com.example.justindowty.convcalc;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.justindowty.convcalc.dummy.HistoryContent;
@@ -26,6 +31,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static WeatherService.WeatherService.BROADCAST_WEATHER;
 import static java.lang.String.valueOf;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,11 +47,17 @@ public class MainActivity extends AppCompatActivity {
     private TextView fromLabel;
     private TextView toLabel;
 
+    /* Weather */
+    private TextView current;
+    private TextView temperature;
+    private ImageView weatherIcon;
+
     private Button calcButton;
     private Button clearButton;
     private Button modeButton;
 
-    private String currMode = "length";
+    private String currMode;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
         calcButton = (Button) findViewById(R.id.calculateButton);
         clearButton = (Button) findViewById(R.id.clearButton);
         modeButton = (Button) findViewById(R.id.modeButton);
+        currMode = "length";
+
+        /* Weather */
+        current = (TextView) findViewById(R.id.current);
+        temperature = (TextView) findViewById(R.id.temperature);
+        weatherIcon = (ImageView) findViewById(R.id.weatherIcon);
 
         /* Erasing Other Inputs On Click */
         fromInput.setOnFocusChangeListener((View v, boolean b) -> toInput.setText(""));
@@ -74,6 +92,36 @@ public class MainActivity extends AppCompatActivity {
 
         /* Clear Button */
         clearButton.setOnClickListener((View v) -> clearInputs());
+        setWeatherViews(View.INVISIBLE);
+    }
+
+    private BroadcastReceiver weatherReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("TAG", "onReceive: " + intent);
+            Bundle bundle = intent.getExtras();
+            double temp = bundle.getDouble("TEMPERATURE");
+            String summary = bundle.getString("SUMMARY");
+            String icon = bundle.getString("ICON").replaceAll("-", "_");
+            String key = bundle.getString("KEY");
+            int resID = getResources().getIdentifier(icon , "drawable", getPackageName());
+            setWeatherViews(View.VISIBLE);
+            if (key.equals("p1"))  {
+                current.setText(summary);
+                temperature.setText(Double.toString(temp));
+                weatherIcon.setImageResource(resID);
+            } else {
+                current.setText(summary);
+                temperature.setText(Double.toString(temp));
+                weatherIcon.setImageResource(resID);
+            }
+        }
+    };
+
+    public void setWeatherViews(int vis){
+        current.setVisibility(vis);
+        temperature.setVisibility(vis);
+        weatherIcon.setVisibility(vis);
     }
 
     @Override
@@ -82,12 +130,16 @@ public class MainActivity extends AppCompatActivity {
         allHistory.clear();
         topRef = FirebaseDatabase.getInstance().getReference("history");
         topRef.addChildEventListener (chEvListener);
+        IntentFilter weatherFilter = new IntentFilter(BROADCAST_WEATHER);
+        LocalBroadcastManager.getInstance(this).registerReceiver(weatherReceiver, weatherFilter);
+        setWeatherViews(View.INVISIBLE);
     }
 
     @Override
     public void onPause(){
         super.onPause();
         topRef.removeEventListener(chEvListener);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(weatherReceiver);
     }
 
 
@@ -203,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* Uses convert to calculate and set inputs */
     public void calculate(){
+        WeatherService.WeatherService.startGetWeather(this, "42.963686", "-85.888595", "p1");
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         if(fromInput.getText().toString().equals("")){
             double val = Double.parseDouble(toInput.getText().toString());
@@ -221,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
             HistoryContent.addItem(item);
             topRef.push().setValue(item);
         }
+        setWeatherViews(View.VISIBLE);
     }
 
     private ChildEventListener chEvListener = new ChildEventListener() {
